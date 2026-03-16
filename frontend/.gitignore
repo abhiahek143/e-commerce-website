@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+.DS_Store
+npm-debug.log*
+
+# Production build
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Vite
+.cache/
+
+# IDE
+.vscode/settings.json
+
