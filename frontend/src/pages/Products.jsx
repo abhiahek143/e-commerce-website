@@ -6,7 +6,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Search, ArrowUpDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { sampleProducts } from './sampleProducts.js'
 
 const categories = ['all', 'electronics', 'clothing', 'books', 'furniture']
 

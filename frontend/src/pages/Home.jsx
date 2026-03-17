@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import ProductCard from '@/components/ProductCard'
 import { useProducts } from '@/hooks/useProducts'
 import { Button } from '@/components/ui/button'
-import { sampleProducts } from './sampleProducts.js'
 
 const Home = () => {
   const { products: apiProducts, loading, error, refetch } = useProducts()
