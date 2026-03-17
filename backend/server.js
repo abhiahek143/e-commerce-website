@@ -66,7 +66,7 @@ app.get('/', (req, res) => {
 })
 
 // Products routes
-const { sampleProducts } = require('../frontend/src/pages/sampleProducts')
+
 
 app.get('/api/products', async (req, res) => {
   res.set('Cache-Control', 'no-cache, no-store, must-revalidate')
