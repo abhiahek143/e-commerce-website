@@ -151,7 +151,7 @@ export const useCartStore = create(
 
       applyCoupon: async (code) => {
         try {
-          const response = await fetch('http://localhost:5001/api/coupons/validate', {
+          const response = await fetch('/api/coupons/validate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code: code.trim().toUpperCase() })

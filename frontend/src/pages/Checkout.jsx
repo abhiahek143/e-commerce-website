@@ -71,7 +71,7 @@ const Checkout = () => {
     setLoading(true)
     
     // Submit order
-    fetch('http://localhost:5001/api/orders', {
+    fetch('/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
