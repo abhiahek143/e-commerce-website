@@ -1,5 +1,5 @@
 {
-  "name": "ecommerce-backend",
+  "name": "backend",
   "version": "1.0.0",
   "description": "Premium E-Commerce Backend",
   "main": "server.js",
@@ -19,4 +19,3 @@
     "nodemon": "^3.1.7"
   }
 }
-
