@@ -1,0 +1,31 @@
+[[service]]
+name = "ecommerce-backend"
+source = "backend"
+
+[service.build]
+builder = "NIXPACKS"
+
+[service.deploy]
+startCommand = "npm start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[service.env]
+# Add in Railway dashboard:
+# SUPABASE_URL=https://your-project.supabase.co
+# SUPABASE_SERVICE_KEY=your-service-role-key
+
+[[service]]
+name = "ecommerce-frontend"
+source = "frontend"
+
+[service.build]
+builder = "NIXPACKS"
+
+[service.deploy]
+startCommand = "npm run build"
+restartPolicyType = "ON_FAILURE"
+
+[build]
+builder = "NIXPACKS"
+
