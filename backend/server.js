@@ -306,4 +306,7 @@ app.get('/api/orders/:userId', async (req, res) => {
 
 
 module.exports = app;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
 

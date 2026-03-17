@@ -16,6 +16,15 @@ export const useCartStore = create(
         setTimeout(() => {
           const existingItem = get().items.find(item => item.id === product.id)
           const addQty = product.quantity || 1
+          const stock = product.stock ?? 999
+
+          // Check total qty vs stock
+          const newTotalQty = (existingItem ? existingItem.quantity : 0) + addQty
+          if (newTotalQty > stock) {
+            toast.error(`Max stock reached! Cart already has ${existingItem ? existingItem.quantity.toLocaleString() : 0}/${stock.toLocaleString()}`, { duration: 4000 })
+            set({ isAnimating: false })
+            return
+          }
 
           if (existingItem) {
             const updatedItems = get().items.map(item =>
@@ -212,6 +221,10 @@ export const useCartStore = create(
 
       getTax: (subtotal) => {
         return subtotal * 0.1
+      },
+
+      getTotalItems: () => {
+        return get().items.reduce((sum, item) => sum + (item?.quantity || 0), 0)
       },
 
       getGrandTotal: () => {

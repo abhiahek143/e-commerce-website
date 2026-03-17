@@ -10,12 +10,16 @@ import { toast } from 'sonner'
 
 
 
-  const Cart = () => {
+const Cart = () => {
     const { items, removeFromCart, clearCart, updateQuantity, getTotal, getMRP, getGrandTotal, getSavings, deliveryFee, couponCode, couponIsValid, couponDiscount, applyCoupon, clearCoupon, getSubtotal, getProductDiscount, getTotalDiscount } = useCartStore()
     const { toggleWishlist, isInWishlist } = useWishlistStore()
-    const [searchParams, setSearchParams] = useSearchParams()
     const [couponError, setCouponError] = useState('')
     const couponInputRef = useRef(null)
+
+    // Clear coupon on every Cart page visit
+    useEffect(() => {
+      clearCoupon()
+    }, [])
 
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
@@ -129,12 +133,24 @@ import { toast } from 'sonner'
                         </Button>
                         <span className="w-12 text-center text-lg font-bold text-slate-900 mx-2">
                           {item.quantity}
+                          {item.stock && item.quantity >= item.stock && (
+                            <span className="ml-1 text-xs text-red-500 font-bold animate-pulse">Max!</span>
+                          )}
                         </span>
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="h-10 w-10 hover:bg-slate-100"
+                          onClick={() => {
+                            const newQty = item.quantity + 1
+                            const maxQty = item.stock ?? 999
+                            if (newQty > maxQty) {
+                              toast.warning(`Max stock reached: ${maxQty.toLocaleString()} items`, { duration: 3000 })
+                              return
+                            }
+                            updateQuantity(item.id, newQty)
+                          }}
+                          className="h-10 w-10 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={item.quantity >= (item.stock ?? 999)}
                         >
                           <Plus size={18} />
                         </Button>

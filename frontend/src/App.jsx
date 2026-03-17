@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar'
 import Home from '@/pages/Home'
 import ProductsPage from '@/pages/Products.jsx'
 import ProductDetail from '@/pages/ProductDetail.jsx'
+import Profile from '@/pages/Profile.jsx'
 import Cart from '@/pages/Cart.jsx'
 import Checkout from '@/pages/Checkout.jsx'
 import Login from '@/pages/Login.jsx'
@@ -20,12 +21,11 @@ function AnimatedRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/product/:id" element={<ProductDetail />} />
-        {/* TODO: Cart, Checkout, Auth pages */}
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/login" element={<Login />} />
-
         <Route path="/signup" element={<Signup />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </AnimatePresence>
   )
@@ -51,3 +51,4 @@ function App() {
 }
 
 export default App
+

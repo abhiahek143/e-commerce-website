@@ -2,8 +2,10 @@ import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, ArrowLeft, Image as ImageIcon, Truck, Shield, Star, ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react'
+import { ShoppingCart, ArrowLeft, Image as ImageIcon, Truck, Shield, Star, ChevronLeft, ChevronRight, Minus, Plus, AlertCircle } from 'lucide-react'
+
 import { useCartStore } from '@/store/cartStore'
+import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
 import { useProducts } from '@/hooks/useProducts'
 import StarRating from '@/components/StarRating'
@@ -62,8 +64,23 @@ const ProductDetail = () => {
   const navigate = useNavigate()
   const [qty, setQty] = useState(1)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [showMaxError, setShowMaxError] = useState(false)
   const [currentImage, setCurrentImage] = useState(0)
   const [loading, setLoading] = useState(true)
+
+  const validateQuantity = () => {
+    const cartItems = useCartStore.getState().items
+    const existingCartItem = cartItems.find(item => item.id === product.id)
+    const currentCartQty = existingCartItem ? existingCartItem.quantity : 0
+    const newTotalQty = currentCartQty + qty
+    const maxStock = product.stock ?? 999
+    return newTotalQty <= maxStock
+  }
+
+  const validateBuyQuantity = () => {
+    const maxStock = product.stock ?? 999
+    return qty <= maxStock
+  }
 
   const discount = product?.origiPrice ? Math.round(((product.origiPrice - product.price) / product.origiPrice) * 100) : 0
   const images = product?.images || ['https://images.unsplash.com/photo-1527444154887-e8bd9f18a998?w=800&fit=crop&auto=format']
@@ -193,7 +210,7 @@ const ProductDetail = () => {
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div className="flex items-center gap-2 p-3 bg-emerald-50 rounded-xl">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                <span>In Stock: {product.stock}</span>
+                <span>{product.stock > 0 ? `In Stock: ${product.stock.toLocaleString()}` : 'Out of Stock'}</span>
               </div>
               <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-xl">
                 <Truck className="w-4 h-4 text-blue-500" />
@@ -209,35 +226,30 @@ const ProductDetail = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <span className="font-semibold text-lg">Quantity:</span>
-                <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="h-10 w-10 rounded-lg hover:bg-slate-100"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
-                  <span className="px-6 py-2 font-mono font-bold text-lg min-w-[3rem] text-center">{qty}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setQty(Math.min(product.stock || 99, qty + 1))}
-                    className="h-10 w-10 rounded-lg hover:bg-slate-100"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
+                <input
+                  type="number"
+                  min="0"
+                  value={qty}
+                  onChange={(e) => setQty(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="w-24 h-12 px-4 font-mono font-bold text-lg text-center border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-white"
+                />
               </div>
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <Button 
                   size="lg"
-                  className="flex-1 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-lg shadow-xl h-14 font-semibold"
+                  className="flex-1 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-lg shadow-xl h-14 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={async () => {
+                    if (!validateQuantity()) {
+                      setShowMaxError(true)
+                      setTimeout(() => setShowMaxError(false), 3000)
+                      toast.error(`Cannot add! Max stock ${product.stock?.toLocaleString() ?? '999'} reached`, { duration: 4000 })
+                      return
+                    }
                     await addToCart({ ...product, quantity: qty })
                     setShowSuccess(true)
                     setTimeout(() => setShowSuccess(false), 3000)
                   }}
+                  disabled={qty <= 0}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Add to Cart
@@ -255,13 +267,33 @@ const ProductDetail = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
+                <AnimatePresence>
+                  {showMaxError && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                      className="text-xs text-rose-600 font-medium mt-2 flex items-center gap-1"
+                    >
+                      <AlertCircle className="w-4 h-4" />
+                      Max stock reached! 
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 <Button 
                   size="lg"
-                  className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-lg shadow-xl h-14 font-semibold"
+                  className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-lg shadow-xl h-14 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={async () => {
+                    if (!validateBuyQuantity()) {
+                      setShowMaxError(true)
+                      setTimeout(() => setShowMaxError(false), 3000)
+                      toast.error(`Cannot buy! Max stock ${product.stock?.toLocaleString() ?? '999'} reached`, { duration: 4000 })
+                      return
+                    }
                     await addToCart({ ...product, quantity: qty })
                     navigate('/checkout')
                   }}
+                  disabled={qty <= 0}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Buy Now
